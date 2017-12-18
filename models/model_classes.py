@@ -139,7 +139,7 @@ class LinearModel(PolynomialModel):
 class DecayModel(Model):
     """Average the last `n_last` polls (`None`, i.e. all by default), where polls further back are weighted less (exponential decay)."""
 
-    def __init__(self, n_last=None, decay_factor=0.9):
+    def __init__(self, n_last=100, decay_factor=0.9):
         self.n_last = n_last
         self.decay_factor = decay_factor
 
@@ -184,6 +184,8 @@ class DecayModel(Model):
             error = prediction_error[i]
             prediction_df[party][0] = [mean - error, mean, mean + error]
 
+        mask = np.invert(prediction_df.SPD.apply(lambda x : x[1])==0)
+        prediction_df= prediction_df[mask]
         # import pdb; pdb.set_trace()
         return prediction_df
 

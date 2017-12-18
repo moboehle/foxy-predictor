@@ -353,7 +353,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=2),
+            size=4),
         marker=dict(color='rgb(0,0,0)'),
         opacity=0.5, histnorm='probability')
 
@@ -363,7 +363,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=2),
+            size=4),
         marker=dict(color='rgb(165,0,38)'),
         opacity=0.5, histnorm='probability')
 
@@ -373,7 +373,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=2),
+            size=4),
         marker=dict(color='rgb(154,205,50)'),
         opacity=0.5, histnorm='probability')
 
@@ -383,7 +383,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=2),
+            size=4),
         marker=dict(color='rgb(0,204,255)'),
         opacity=0.5, histnorm='probability')
 
@@ -393,7 +393,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=2),
+            size=4),
         marker=dict(color='rgb(153,102,255)'),
         opacity=0.5, histnorm='probability')
 
