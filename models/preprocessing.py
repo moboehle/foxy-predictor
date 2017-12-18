@@ -99,7 +99,7 @@ def average(data, model = 'weightparticipants', weightvector=None):
             else:
                 print("A week with zero poll participants, nothing to do...")
                 print("\t This occured on week ", i)
-                #result[i,:] = None
+                result[i,:] = None
                 #print("No participants in a given week. Setting all weighted polls to None")
                 #import pdb; pdb.set_trace()
                 #print('Divide by zero avoided! - in weightparticipants section of preprocessing average() function')

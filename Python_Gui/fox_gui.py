@@ -6,9 +6,9 @@ from copy import deepcopy as copy
 from subprocess import call
 
 
-# imports for GUI, cannot be used on the AWS server due to absence of a X server
+#imports for GUI, cannot be used on the AWS server due to absence of a X server
 #from tkinter import *
-#import tkinter.messagebox Can nor use tkinter on the server
+#import tkinter.messagebox# Can nor use tkinter on the server
 
 
 # imports for printing of intro text to command-line

@@ -13,7 +13,8 @@ from scipy.stats.mstats import mquantiles
 from model_helper import _prediction_to_dataframe
 from model_helper import _normalize_to_hundred
 from model_helper import parties
-from model_helper import election_date
+#If there is no election, we just predict 7 weeks into the future.
+#from model_helper import election_date
 from model_helper import weeks_left
 
 #import preprocessing
@@ -228,15 +229,15 @@ class GPModel(Model):
     def predict(self, df=data,**kwargs):
         return self.predict_all(df,**kwargs).iloc[0]
 
-    def histogram(self,samples = 1000):
-        return self.traces[:,:,0]
+    def histogram(self,samples = 2000):
+        return self.traces[:,:,-1]
 
-    def predict_all(self, df=data,samples = 1000):
+    def predict_all(self, df=data,samples = 2000):
         #TODO: can this work with data which has been scrubbed of zero entries?
         # import pdb; pdb.set_trace()
 
         Y = df[parties]
-        Y = Y.dropna(how='all').fillna(0)
+        Y = Y.dropna(how='all').fillna(0)[::-1]
         X = Y.index.values
 
         #X = pd.to_datetime(data.Datum)
@@ -247,8 +248,13 @@ class GPModel(Model):
 
         self.m = GPflow.gpr.GPR(X, pd.DataFrame.as_matrix(Y), kern=self.kernel)
         self.m.optimize()
-        weeks2election = weeks_left(df)
-        x_pred = np.linspace(+weeks2election+X[0,0],X[-1,0], len(df)+weeks2election).reshape(-1,1)
+        #weeks to predict. weeks_left only makes sense if an election is imminent.
+        #For the same reason, the usage of election date does not make sense
+        #right now.
+        #TODO: Rename this properly
+        weeks2predict = 7#weeks_left(df)
+        prediction_date  = datetime.date.today()+ datetime.timedelta(weeks=weeks2predict)
+        x_pred = np.linspace(+weeks2predict+X[0,0],X[-1,0], len(df)+weeks2predict).reshape(-1,1)
 
 
 
@@ -270,20 +276,21 @@ class GPModel(Model):
         # TODO: Integrate this into _normalize_to_hundred.
 
         prediction = 100 * mean / np.sum(mean, axis=1).reshape(-1, 1)
-        prediction_df = pd.DataFrame(index=range(-weeks2election+1,len(df)), columns=parties + ['Datum'])
+        prediction_df = pd.DataFrame(index=range(-weeks2predict+1,len(df)), columns=parties + ['Datum'])
         #print(prediction_df)
-        #print(len(df),len(prediction_df['Datum'][weeks2election-1:] ))
-        dates_to_election = election_date -np.array([datetime.timedelta(weeks=i) for i in range(weeks2election-1) ])
-        prediction_df['Datum'][:weeks2election-1] = dates_to_election
-        prediction_df['Datum'][weeks2election-1:] = pd.to_datetime(df['Datum'])
+        #print(len(df),len(prediction_df['Datum'][weeks2predict-1:] ))
+        dates_to_election = prediction_date -np.array([datetime.timedelta(weeks=i) for i in range(weeks2predict-1) ])
+        prediction_df['Datum'][:weeks2predict-1] = dates_to_election
+        prediction_df['Datum'][weeks2predict-1:] = pd.to_datetime(df['Datum'])
         prediction_df.Datum= prediction_df.Datum.apply(lambda x :   pd.to_datetime(x)  if type(x) == int else x  )
         prediction_df[parties] = prediction_df[parties].applymap(lambda x : [0,0,0])
 
+        prediction_df.Datum = prediction_df.Datum.values[::-1]
         total = np.zeros((len(mean),len(parties),3))
         for i, party in enumerate(parties):
             total[:,i,:] = np.array([prediction[:,i]-2*stds[:,i],prediction[:,i],prediction[:,i]+2*stds[:,i]]).T
 
-        for l,k in enumerate(range(-weeks2election+1,len(df))):
+        for l,k in enumerate(range(-weeks2predict+1,len(df))):
             for i, party in enumerate(parties):
                 prediction_df.set_value(k,party,total[l,i,:])
 

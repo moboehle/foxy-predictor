@@ -25,7 +25,9 @@ class predict_till_election ():
         self.election_date = model_helper.election_date #dt.date.strptime('24.09.2017', '%d.%m.%Y')
         #TODO: why is the un-preprocessed data reappearing here?
         # import pdb; pdb.set_trace()
-        self.weeks = model_helper.weeks_left(timeline)
+        #predict weeks into the future. weeks_left only makes sense if there is
+        #an election coming up, then it projects up to that day.
+        self.weeks = 7#model_helper.weeks_left(timeline)
         self.parties  = np.array(model_helper.parties)
         self.result = []
 
@@ -38,7 +40,7 @@ class predict_till_election ():
 
     def make_result(self):
 
-        dates = self.timeline.Datum[0] +np.array([dt.timedelta(weeks=i) for i in range(self.weeks) ])
+        dates = np.max(self.timeline.Datum) +np.array([dt.timedelta(weeks=i) for i in range(self.weeks) ])
 
         self.result = pd.DataFrame(columns= self.parties, index= range(self.weeks))
 

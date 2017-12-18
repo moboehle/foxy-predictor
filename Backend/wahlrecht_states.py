@@ -46,7 +46,7 @@ def janitor(table):
 
     # convert the date to type date
     table.Datum = table.Datum.apply(lambda cell: pd.to_datetime(cell, format='%d.%m.%Y')
-                                      if len(cell)==10 
+                                      if len(cell)==10
                                       else pd.to_datetime(cell, format='%d.%m.%y'))
     if not table.empty:
         table.Datum = table.Datum.dt.date
@@ -56,6 +56,7 @@ def janitor(table):
     table = table.replace('[–?%)≈/*]', '', regex=True)
     table = table.replace('T • ', '', regex=True)
     table = table.replace('O • ', '', regex=True)
+    table = table.replace('TOM • ', '', regex=True)
 
     # extract the AfD from Sonstige
     AfD = table.Sonstige.str.extract('(AfD \d+)', expand=False)
@@ -70,7 +71,7 @@ def janitor(table):
     # convert all numbers to float
     table = table.replace('', np.nan, regex=True)
     table[table.keys()[3:]] = table[table.keys()[3:]].astype(float)
-    
+
     return table
 
 
@@ -79,21 +80,21 @@ def janitor(table):
 def get_states_tables():
     """
     Goes through the website 'http://www.wahlrecht.de/umfragen/laender.htm'
-    and extracts the table for states individually, 
-    
-    Return: a dictionary containing the id names of the states as keywords and the 
+    and extracts the table for states individually,
+
+    Return: a dictionary containing the id names of the states as keywords and the
             pd dataframes as values.
     """
     tables = {} # {'state': df}
 
     page = urllib.request.urlopen('http://www.wahlrecht.de/umfragen/laender.htm')
     soup = BeautifulSoup(page, 'html.parser')
-    
+
     # Find the subtables
     states = soup.find_all('th', colspan='10', id=True)
     rows = soup.find_all('tr')
     header = [col.get_text() for col in soup.find_all('th', class_=True, limit=9)]
-    
+
     # Initialize with empty/unimportant values
     table = [] # df
     new_table = pd.DataFrame()
@@ -108,9 +109,9 @@ def get_states_tables():
         cols = row.find_all('td', rowspan=False)
         cols = [ele.text.strip() for ele in cols]
         table.append([ele if ele else None for ele in cols])
-        
+
         # End point for each state
-        if row.find('th', colspan='10', class_="trenner") != None: 
+        if row.find('th', colspan='10', class_="trenner") != None:
             # Don't use the information outside the states.
             if name != 'ignore':
                 try:
@@ -146,6 +147,3 @@ def get_tables():
 
 
 # In[ ]:
-
-
-

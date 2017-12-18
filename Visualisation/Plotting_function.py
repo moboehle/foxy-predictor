@@ -7,6 +7,7 @@ import plotly.graph_objs as go
 import scipy as sp
 import plotly as py
 import pandas
+import datetime
 plotly.offline.init_notebook_mode()
 import plotly.offline as offline
 import jinja2
@@ -27,9 +28,9 @@ def plot_graphs(data_new):
     FDPstr='FdP'
     AfDstr='AfD'
 
-    lower_range = data_new['lower'][::-1]
+    lower_range = data_new['lower']#[::-1]
     mean_range = data_new['mean']
-    upper_range = data_new['upper'][::-1]
+    upper_range = data_new['upper']#[::-1]
     histograms = data_new ['hist']
     data_original = data_new['original']
     #data_original[PARTIES] = data_original[PARTIES].applymap(lambda x : x[1])
@@ -54,20 +55,21 @@ def plot_graphs(data_new):
     fig_1 = {"data": [base_chart, meter_chart],}
     #offline.plot(fig_1 , output_type='file', filename='SeatChart',image='png')
 
+    #import pdb; pdb.set_trace()
+    timeline= data_new.Datum#[::-1]
+    CDU_data=data_new[CDUstr]#[::-1]
+    SPD_data=data_new[SPDstr]#[::-1]
+    Green_data=data_new[GRÜNEstr]#[::-1]
+    Linke_data=data_new[LINKEstr]#[::-1]
+    AFD_data=data_new[AfDstr]#[::-1]
 
-    timeline= data_new.Datum[::-1]
-    CDU_data=data_new[CDUstr][::-1]
-    SPD_data=data_new[SPDstr][::-1]
-    Green_data=data_new[GRÜNEstr][::-1]
-    Linke_data=data_new[LINKEstr][::-1]
-    AFD_data=data_new[AfDstr][::-1]
-
-    org_timeline = data_original.Datum
-    CDU_original=data_original[CDUstr][::-1]
-    SPD_original=data_original[SPDstr][::-1]
-    Green_original=data_original[GRÜNEstr][::-1]
-    Linke_original=data_original[LINKEstr][::-1]
-    AFD_original=data_original[AfDstr][::-1]
+    mask = data_original.Datum > np.min(data_new.Datum)
+    org_timeline = data_original.Datum[mask]
+    CDU_original=data_original[CDUstr][mask]#[::-1]
+    SPD_original=data_original[SPDstr][mask]#[::-1]
+    Green_original=data_original[GRÜNEstr][mask]#[::-1]
+    Linke_original=data_original[LINKEstr][mask]#[::-1]
+    AFD_original=data_original[AfDstr][mask]#[::-1]
 
 
     upper_bound_CDU = go.Scatter(
@@ -336,7 +338,7 @@ def plot_graphs(data_new):
 
     histos = []
     for i, party in enumerate(PARTIES):
-        histos.append(histograms[:,i])
+        histos.append(histograms.T[i])
 
     CDU_hist = histos[0]
     SPD_hist = histos[1]
@@ -351,7 +353,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=1),
+            size=2),
         marker=dict(color='rgb(0,0,0)'),
         opacity=0.5, histnorm='probability')
 
@@ -361,7 +363,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=1),
+            size=2),
         marker=dict(color='rgb(165,0,38)'),
         opacity=0.5, histnorm='probability')
 
@@ -371,7 +373,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=1),
+            size=2),
         marker=dict(color='rgb(154,205,50)'),
         opacity=0.5, histnorm='probability')
 
@@ -381,7 +383,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=1),
+            size=2),
         marker=dict(color='rgb(0,204,255)'),
         opacity=0.5, histnorm='probability')
 
@@ -391,7 +393,7 @@ def plot_graphs(data_new):
         xbins=dict(
             start=0,
             end=60,
-            size=1),
+            size=2),
         marker=dict(color='rgb(153,102,255)'),
         opacity=0.5, histnorm='probability')
 
